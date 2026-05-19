@@ -144,7 +144,7 @@ td.td-day.off-day{background:repeating-linear-gradient(45deg,#f8fafc,#f8fafc 5px
 .bar-value{font-size:11px;color:#94a3b8;width:22px;text-align:left;font-weight:600;}
 
 /* LEGEND */
-.legend{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.legend{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:0 0 4px;}
 .leg-item{display:flex;align-items:center;gap:4px;font-size:11px;color:#475569;font-weight:500;}
 .leg-dot{width:10px;height:10px;border-radius:3px;}
 
@@ -207,6 +207,9 @@ td.td-day.off-day{background:repeating-linear-gradient(45deg,#f8fafc,#f8fafc 5px
 .notif.show{opacity:1;}
 .notif.ok{border-color:#86efac;color:#16a34a;}
 .notif.err{border-color:#fca5a5;color:#dc2626;}
+.off-reason-btn{border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 8px;cursor:pointer;font-size:13px;font-family:'Heebo',Arial,sans-serif;font-weight:600;background:#fff;color:#475569;transition:all .15s;text-align:center;}
+.off-reason-btn:hover{border-color:#2563eb;background:#eff6ff;color:#2563eb;}
+.off-reason-btn.selected{border-color:#2563eb;background:#2563eb;color:#fff;}
 </style>
 </head>
 <body>
@@ -252,6 +255,7 @@ td.td-day.off-day{background:repeating-linear-gradient(45deg,#f8fafc,#f8fafc 5px
     <div class="top-tabs">
       <button class="top-tab active" id="tab-schedule">&#128197; לוח שיבוץ</button>
       <button class="top-tab" id="tab-dreshot">&#128203; דרישות</button>
+      <button class="top-tab" id="tab-absence">&#128274; היעדרויות</button>
       <button class="top-tab" id="tab-stats">&#128202; סטטיסטיקות</button>
     </div>
     <div class="top-week">
@@ -313,8 +317,9 @@ td.td-day.off-day{background:repeating-linear-gradient(45deg,#f8fafc,#f8fafc 5px
   <div class="modal-box">
     <h3 id="dreshot-modal-title">דרישה חדשה</h3>
     <div class="mfield"><label>שם הפרויקט</label>
-      <input type="text" id="dr-proj" placeholder="הקלד שם פרויקט..." list="proj-datalist">
+      <input type="text" id="dr-proj" placeholder="הקלד או בחר מהרשימה..." list="proj-datalist" autocomplete="off">
       <datalist id="proj-datalist"></datalist>
+      <div style="margin-top:5px;font-size:10px;color:#94a3b8;">לא מוצא? פשוט הקלד שם חדש ↑</div>
     </div>
     <div class="mfield"><label>סוג פעולה</label><select id="dr-type"></select></div>
     <div class="mfield"><label>מתקינים מועדפים</label><div class="inst-picker" id="dr-inst-picker"></div></div>
@@ -338,21 +343,29 @@ td.td-day.off-day{background:repeating-linear-gradient(45deg,#f8fafc,#f8fafc 5px
 <!-- OFF DAY MODAL -->
 <div class="modal-overlay" id="off-modal">
   <div class="modal-box" style="width:360px;">
-    <h3>סגירת יום</h3>
-    <div class="mfield"><label>מתקין</label><input type="text" id="off-inst-lbl" readonly style="background:#f8fafc;"></div>
-    <div class="mfield"><label>תאריך</label><input type="text" id="off-date-lbl" readonly style="background:#f8fafc;"></div>
-    <div class="mfield"><label>סיבה</label>
-      <select id="off-reason">
-        <option value="חופש">חופש</option>
-        <option value="חג">חג</option>
-        <option value="מחלה">מחלה</option>
-        <option value="אירוע אישי">אירוע אישי</option>
-        <option value="הכשרה">הכשרה</option>
-      </select>
+    <h3>&#128274; סגירת יום למתקין</h3>
+    <div style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;">
+      <div id="off-av" style="width:38px;height:38px;border-radius:50%;background:#eff6ff;color:#2563eb;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid #bfdbfe;"></div>
+      <div style="flex:1;">
+        <div id="off-inst-lbl" style="font-size:13px;font-weight:700;color:#0f172a;"></div>
+        <div id="off-date-lbl" style="font-size:11px;color:#94a3b8;margin-top:2px;"></div>
+        <select id="off-inst-select" style="display:none;width:100%;margin-top:4px;border:1.5px solid #cbd5e1;border-radius:5px;padding:5px 8px;font-family:Heebo,Arial,sans-serif;font-size:12px;" onchange="var av=this.value.replace(/\s/g,'').substring(0,2);document.getElementById('off-av').textContent=av;document.getElementById('off-inst-lbl').textContent=this.value;offInst=this.value;"></select>
+        <select id="off-date-select" style="display:none;width:100%;margin-top:4px;border:1.5px solid #cbd5e1;border-radius:5px;padding:5px 8px;font-family:Heebo,Arial,sans-serif;font-size:12px;" onchange="offIsoDate=this.value;document.getElementById('off-date-lbl').textContent=this.options[this.selectedIndex].text;"></select>
+      </div>
+    </div>
+    <div class="mfield"><label>סיבת היעדרות</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="off-reason-grid">
+        <button class="off-reason-btn" data-reason="חופש" onclick="selectOffReason(this)">🏖 חופש</button>
+        <button class="off-reason-btn" data-reason="חג" onclick="selectOffReason(this)">✡ חג</button>
+        <button class="off-reason-btn" data-reason="מחלה" onclick="selectOffReason(this)">🤒 מחלה</button>
+        <button class="off-reason-btn" data-reason="אירוע אישי" onclick="selectOffReason(this)">🎉 אירוע אישי</button>
+        <button class="off-reason-btn" data-reason="הכשרה" onclick="selectOffReason(this)">📚 הכשרה</button>
+      </div>
+      <input type="hidden" id="off-reason" value="חופש">
     </div>
     <div class="modal-actions">
       <button class="mbtn can" id="off-cancel">ביטול</button>
-      <button class="mbtn danger" id="off-save">סגור יום</button>
+      <button class="mbtn danger" id="off-save">&#128274; סגור יום</button>
     </div>
   </div>
 </div>
@@ -458,12 +471,18 @@ var DAYS = ["ראשון","שני","שלישי","רביעי","חמישי","שיש
 var PMS = ["גלעד","עמית","עידן","ניקי","שי","חן שאמלי","אסף כרמונה","וובה","ספיר בר","אסף טישלר","ניר"];
 
 var INSTALLERS = [
-  {id:"m1", name:"רונית מלכה",   phone:"0533333333", city:"", skill:"צוות מנהלים"},
-  {id:"m2", name:"אבי שלום",     phone:"0509876543", city:"", skill:"צוות ג'"},
-  {id:"m3", name:"דני לוי",      phone:"0547654321", city:"", skill:"צוות ב'"},
-  {id:"m4", name:"אילנה בן דוד", phone:"0522222222", city:"", skill:"צוות ב'"},
-  {id:"m5", name:"יוסי כהן",     phone:"0521234567", city:"", skill:"צוות א'"},
-  {id:"m6", name:"שלומי אוחנה",  phone:"0588888888", city:"", skill:"צוות א'"}
+  {id:"i01", name:"קיריל",       phone:"0539525183", city:"ראשון לציון", skill:"מחיצות"},
+  {id:"i02", name:"גיאורגי",     phone:"0549557243", city:"נתניה",       skill:"זיגוג"},
+  {id:"i03", name:"דימה",        phone:"0544952656", city:"ראשון לציון", skill:"פרופילציה"},
+  {id:"i04", name:"גרישה",       phone:"0526276303", city:"ראשון לציון", skill:"מחיצות"},
+  {id:"i05", name:"עלא",         phone:"0509191100", city:"באקה אל-גרבייה", skill:"מחיצות"},
+  {id:"i06", name:"קוסטה",       phone:"0525113669", city:"חיפה",        skill:"זיגוג"},
+  {id:"i07", name:"אלון",        phone:"0584307560", city:"הוד השרון",   skill:"דלתות"},
+  {id:"i08", name:"אמיר",        phone:"0527446514", city:"ירושלים",     skill:"כללי"},
+  {id:"i09", name:"אחמד",        phone:"0545437909", city:"ירושלים",     skill:"כללי"},
+  {id:"i10", name:"דוד",         phone:"0528720181", city:"נתניה",       skill:"מחיצות"},
+  {id:"i11", name:"יגור",        phone:"0533242950", city:"חולון",       skill:"פרופילציה"},
+  {id:"i12", name:"אבי",         phone:"0522424406", city:"יבנה",        skill:"זיגוג"}
 ];
 
 // ==================== STATE ====================
@@ -625,6 +644,7 @@ document.getElementById("btn-today").addEventListener("click", function() { week
 // ==================== TABS ====================
 document.getElementById("tab-schedule").addEventListener("click", function() { setView("schedule"); });
 document.getElementById("tab-dreshot").addEventListener("click", function() { setView("dreshot"); });
+document.getElementById("tab-absence").addEventListener("click", function() { setView("absence"); });
 document.getElementById("tab-stats").addEventListener("click", function() { setView("stats"); });
 document.getElementById("btn-new-dreshot").addEventListener("click", function() { openDreshotModal(null); });
 document.getElementById("sb-add-btn").addEventListener("click", function() { openDreshotModal(null); });
@@ -633,6 +653,7 @@ function setView(v) {
   currentView = v;
   document.getElementById("tab-schedule").className = "top-tab" + (v==="schedule" ? " active" : "");
   document.getElementById("tab-dreshot").className = "top-tab" + (v==="dreshot" ? " active" : "");
+  document.getElementById("tab-absence").className = "top-tab" + (v==="absence" ? " active" : "");
   document.getElementById("tab-stats").className = "top-tab" + (v==="stats" ? " active" : "");
   renderMain();
 }
@@ -647,6 +668,7 @@ function renderAll() {
 function renderMain() {
   if (currentView === "schedule") renderSchedule();
   else if (currentView === "dreshot") renderDreshot();
+  else if (currentView === "absence") renderAbsence();
   else renderStats();
 }
 
@@ -832,7 +854,7 @@ function renderDrPicker() {
     var bg = s ? "#2563eb" : "#fff";
     var col = s ? "#fff" : "#475569";
     var bord = s ? "#2563eb" : "#cbd5e1";
-    return '<span data-name="'+i.name+'" style="cursor:pointer;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1.5px solid '+bord+';background:'+bg+';color:'+col+';display:inline-block;margin:2px;">'+i.name+'</span>';
+    return '<span data-name="'+i.name+'" title="'+i.skill+' | '+i.phone+'" style="cursor:pointer;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1.5px solid '+bord+';background:'+bg+';color:'+col+';display:inline-block;margin:2px;">'+i.name+'</span>';
   }).join("");
   p.querySelectorAll("span").forEach(function(tag) {
     tag.addEventListener("click", function() {
@@ -855,9 +877,9 @@ function openChipNew(key, instName) {
   document.getElementById("chip-contact").value = "";
   document.getElementById("chip-cphone").value = "";
   document.getElementById("chip-notes").value = "";
-  document.getElementById("chip-file-preview").style.display = "none";
-  document.getElementById("chip-file-input").value = "";
-  document.getElementById("chip-file-input").dataset.fid = "";
+  
+  
+  
   // auto-fill PM
   var proj = document.getElementById("chip-proj").value;
   autofillPM(proj);
@@ -879,11 +901,11 @@ function openChipEdit(key, ci) {
   document.getElementById("chip-contact").value = c.contact||"";
   document.getElementById("chip-cphone").value = c.cphone||"";
   document.getElementById("chip-notes").value = c.notes||"";
-  document.getElementById("chip-file-input").dataset.fid = c.fileId||"";
+  
   if (c.fileId && fileStore[c.fileId]) {
-    document.getElementById("chip-file-preview").style.display = "flex";
-    document.getElementById("chip-file-name").textContent = fileStore[c.fileId].name;
-  } else { document.getElementById("chip-file-preview").style.display = "none"; }
+    
+    
+  } else {  }
   document.getElementById("chip-modal").classList.add("open");
 }
 function autofillPM(projName) {
@@ -936,22 +958,20 @@ function openDreshotModal(id) {
   document.getElementById("dreshot-modal-title").textContent = d ? "עריכת דרשיה" : "דרישה חדשה";
   document.getElementById("dr-type").innerHTML = TYPES.map(function(t){ return '<option value="'+t.id+'">'+t.label+'</option>'; }).join("");
   var dl = document.getElementById("proj-datalist");
-  dl.innerHTML = PROJECTS.map(function(p){ return '<option value="'+p.n+'">'; }).join("");
+  dl.innerHTML = PROJECTS.map(function(p){ return '<option value="'+p.n+'">'; }).join("") + '<option value="אחר - הקלד שם">';
   document.getElementById("dr-proj").value = d ? d.proj : "";
   document.getElementById("dr-type").value = d ? d.type : TYPES[0].id;
-  document.getElementById("dr-qty").value = d ? d.qty : 1;
   document.getElementById("dr-days").value = d ? d.days : 1;
   document.getElementById("dr-date").value = d ? d.date : "";
   document.getElementById("dr-addr").value = d ? d.addr||"" : "";
   document.getElementById("dr-contact").value = d ? d.contact||"" : "";
   document.getElementById("dr-cphone").value = d ? d.cphone||"" : "";
   document.getElementById("dr-notes").value = d ? d.notes||"" : "";
-  document.getElementById("dr-file-input").dataset.fid = d&&d.fileId ? d.fileId : "";
-  if (d&&d.fileId&&fileStore[d.fileId]) {
-    document.getElementById("dr-file-preview").style.display = "flex";
-    document.getElementById("dr-file-name").textContent = fileStore[d.fileId].name;
-  } else { document.getElementById("dr-file-preview").style.display = "none"; }
+  
+  selectedDrInsts = d && d.insts ? d.insts.slice() : [];
+  renderDrPicker();
   document.getElementById("dreshot-modal").classList.add("open");
+  setTimeout(function(){ document.getElementById("dr-proj").focus(); }, 100);
 }
 document.getElementById("dreshot-cancel").addEventListener("click", function(){ document.getElementById("dreshot-modal").classList.remove("open"); });
 document.getElementById("dreshot-save").addEventListener("click", function() {
@@ -960,7 +980,6 @@ document.getElementById("dreshot-save").addEventListener("click", function() {
     id: dreshotEditId || "d"+nextId++,
     proj: document.getElementById("dr-proj").value,
     type: document.getElementById("dr-type").value,
-    qty: parseInt(document.getElementById("dr-qty").value)||1,
     days: parseInt(document.getElementById("dr-days").value)||1,
     date: document.getElementById("dr-date").value,
     addr: document.getElementById("dr-addr").value,
@@ -1006,11 +1025,13 @@ function scheduleDreshot(id) {
 }
 
 // ==================== OFF DAY ====================
+function selectOffReason(btn) {
+  document.querySelectorAll(".off-reason-btn").forEach(function(b){ b.classList.remove("selected"); });
+  btn.classList.add("selected");
+  document.getElementById("off-reason").value = btn.dataset.reason;
+}
 function openOffModal(instName, dateLabel, isoD) {
-  offInst = instName; offIsoDate = isoD;
-  document.getElementById("off-inst-lbl").value = instName;
-  document.getElementById("off-date-lbl").value = dateLabel;
-  document.getElementById("off-modal").classList.add("open");
+  quickAddOff(instName, dateLabel, isoD);
 }
 function removeOff(instName, isoD) {
   delete offDays[offKey(instName, isoD)];
@@ -1018,7 +1039,7 @@ function removeOff(instName, isoD) {
 }
 document.getElementById("off-cancel").addEventListener("click", function(){ document.getElementById("off-modal").classList.remove("open"); });
 document.getElementById("off-save").addEventListener("click", function() {
-  var reason = document.getElementById("off-reason").value;
+  var reason = document.getElementById("off-reason").value || "חופש";
   offDays[offKey(offInst, offIsoDate)] = reason;
   document.getElementById("off-modal").classList.remove("open");
   saveData(); renderAll(); notify("יום נסגר: " + reason, "ok");
@@ -1201,6 +1222,128 @@ function renderDreshot() {
 }
 
 // ==================== STATS ====================
+function renderAbsence() {
+  var area = document.getElementById("main-area");
+  var dates = weekDates(weekOffset);
+  // Build week navigation title
+  var html = '<div style="display:flex;flex-direction:column;gap:12px;height:100%;overflow:auto;padding-bottom:20px;">';
+
+  // ── Add absence row ──
+  html += '<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;">';
+  html += '<div style="font-size:13px;font-weight:700;color:#0f172a;">ניהול היעדרויות – שבוע ' + fmtDate(dates[0]) + ' – ' + fmtDate(dates[5]) + '</div>';
+  html += '<button class="mbtn pri" onclick="openAddAbsence()" style="padding:6px 14px;font-size:12px;">+ הוסף היעדרות</button>';
+  html += '</div>';
+
+  // ── Table ──
+  html += '<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;overflow:auto;">';
+  html += '<table style="border-collapse:collapse;width:100%;table-layout:fixed;">';
+  html += '<thead><tr>';
+  html += '<th style="text-align:right;padding-right:10px;width:110px;background:#f8fafc;border:1px solid #e2e8f0;font-size:11px;font-weight:700;color:#64748b;padding:8px 10px;">מתקין</th>';
+  DAYS.forEach(function(d, i) {
+    var tod = isToday(dates[i]);
+    html += '<th style="text-align:center;padding:8px 4px;background:'+(tod?'#eff6ff':'#f8fafc')+';border:1px solid #e2e8f0;font-size:10px;font-weight:700;color:'+(tod?'#2563eb':'#64748b')+';width:calc((100%-110px)/6);">' +
+      d + '<br><span style="font-weight:400;font-size:9px;">' + fmtDate(dates[i]) + '</span></th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  INSTALLERS.forEach(function(inst) {
+    var av = inst.name.replace(/\s/g,"").substring(0,2);
+    html += '<tr>';
+    html += '<td style="border:1px solid #e2e8f0;padding:8px;background:#f8fafc;vertical-align:middle;">' +
+      '<div style="display:flex;align-items:center;gap:6px;">' +
+      '<div style="width:26px;height:26px;border-radius:50%;background:#eff6ff;color:#2563eb;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border:1.5px solid #bfdbfe;">'+av+'</div>' +
+      '<div><div style="font-size:12px;font-weight:700;">'+inst.name+'</div><div style="font-size:9px;color:#94a3b8;">'+inst.phone+'</div></div>' +
+      '</div></td>';
+    dates.forEach(function(date, di) {
+      var key = offKey(inst.name, isoDate(date));
+      var reason = offDays[key];
+      var offColors = {'חופש':'#2563eb','חג':'#7c3aed','מחלה':'#dc2626','אירוע אישי':'#d97706','הכשרה':'#16a34a'};
+      var offIcons = {'חופש':'🏖','חג':'✡','מחלה':'🤒','אירוע אישי':'🎉','הכשרה':'📚'};
+      var hasChips = (chips[cellKey(inst.name,di)]||[]).length > 0;
+      var tod = isToday(date);
+      if (reason) {
+        var oc = offColors[reason]||'#64748b';
+        var oi = offIcons[reason]||'❌';
+        html += '<td style="border:1px solid #e2e8f0;padding:4px;text-align:center;background:'+oc+'0d;">' +
+          '<div style="display:flex;flex-direction:column;align-items:center;gap:2px;">' +
+          '<span style="font-size:16px;">'+oi+'</span>' +
+          '<span style="font-size:10px;font-weight:700;color:'+oc+';">'+reason+'</span>' +
+          '<button onclick="removeOff(''+inst.name+'',''+isoDate(date)+'')" style="font-size:9px;border:1px solid '+oc+'40;background:#fff;border-radius:4px;padding:1px 6px;cursor:pointer;color:'+oc+';margin-top:2px;">הסר</button>' +
+          '</div></td>';
+      } else {
+        html += '<td style="border:1px solid #e2e8f0;padding:4px;text-align:center;background:'+(tod?'#f0f7ff':'#fff')+(hasChips?';outline:2px solid #2563eb30;outline-offset:-2px':'')+';cursor:pointer;" onclick="quickAddOff(''+inst.name+'',''+fmtDate(date)+'',''+isoDate(date)+'')" title="לחץ להוספת היעדרות">' +
+          (hasChips ? '<span style="font-size:9px;font-weight:700;color:#2563eb;display:block;margin-bottom:2px;">משובץ</span>' : '') +
+          '<span style="font-size:18px;color:#e2e8f0;display:block;">+</span>' +
+          '</td>';
+      }
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+
+  // ── Summary of all off days ──
+  var allOff = Object.keys(offDays);
+  if (allOff.length) {
+    html += '<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:14px 16px;">';
+    html += '<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">כל ההיעדרויות הרשומות</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+    allOff.sort().forEach(function(k) {
+      var parts = k.split("__");
+      var instName = parts[0]; var isoD = parts[1];
+      var reason = offDays[k];
+      var offColors = {'חופש':'#2563eb','חג':'#7c3aed','מחלה':'#dc2626','אירוע אישי':'#d97706','הכשרה':'#16a34a'};
+      var oc = offColors[reason]||'#64748b';
+      html += '<div style="display:flex;align-items:center;gap:6px;background:'+oc+'0d;border:1px solid '+oc+'30;border-radius:6px;padding:5px 10px;">' +
+        '<span style="font-size:11px;font-weight:700;color:'+oc+';">'+instName+'</span>' +
+        '<span style="font-size:10px;color:#94a3b8;">'+isoD+'</span>' +
+        '<span style="font-size:10px;font-weight:600;color:'+oc+';">'+reason+'</span>' +
+        '<button onclick="removeOff(''+instName+'',''+isoD+'')" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:12px;padding:0 0 0 4px;">✕</button>' +
+        '</div>';
+    });
+    html += '</div></div>';
+  }
+  html += '</div>';
+  area.innerHTML = html;
+}
+
+function openAddAbsence() {
+  // open off modal without pre-selected installer
+  offInst = null; offIsoDate = null;
+  // populate installer select
+  document.getElementById("off-inst-select").innerHTML = INSTALLERS.map(function(i){
+    return '<option value="'+i.name+'">'+i.name+'</option>';
+  }).join("");
+  // populate date select with current week
+  var dates = weekDates(weekOffset);
+  document.getElementById("off-date-select").innerHTML = dates.map(function(d,i){
+    return '<option value="'+isoDate(d)+'">'+DAYS[i]+' '+fmtDate(d)+'</option>';
+  }).join("");
+  document.getElementById("off-av").textContent = INSTALLERS[0].name.replace(/\s/g,"").substring(0,2);
+  document.getElementById("off-inst-lbl").textContent = INSTALLERS[0].name;
+  document.getElementById("off-date-lbl").textContent = "בחר תאריך";
+  document.getElementById("off-reason").value = "חופש";
+  document.querySelectorAll(".off-reason-btn").forEach(function(b){ b.classList.remove("selected"); });
+  var first = document.querySelector(".off-reason-btn");
+  if (first) first.classList.add("selected");
+  document.getElementById("off-modal").classList.add("open");
+}
+
+function quickAddOff(instName, dateLabel, isoD) {
+  offInst = instName; offIsoDate = isoD;
+  var av = instName.replace(/\s/g,"").substring(0,2);
+  document.getElementById("off-av").textContent = av;
+  document.getElementById("off-inst-lbl").textContent = instName;
+  document.getElementById("off-date-lbl").textContent = "יום " + dateLabel;
+  // hide selects, show labels
+  if (document.getElementById("off-inst-select")) document.getElementById("off-inst-select").style.display = "none";
+  if (document.getElementById("off-date-select")) document.getElementById("off-date-select").style.display = "none";
+  document.getElementById("off-reason").value = "חופש";
+  document.querySelectorAll(".off-reason-btn").forEach(function(b){ b.classList.remove("selected"); });
+  var first = document.querySelector(".off-reason-btn");
+  if (first) first.classList.add("selected");
+  document.getElementById("off-modal").classList.add("open");
+}
+
 function renderStats() {
   var dates = weekDates(weekOffset);
   var all = allChips();
