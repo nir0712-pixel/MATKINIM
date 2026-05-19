@@ -301,16 +301,6 @@ td.td-day.off-day{background:repeating-linear-gradient(45deg,#f8fafc,#f8fafc 5px
       <div class="mfield"><label>טלפון לקוח</label><input type="text" id="chip-cphone" placeholder="05X-XXXXXXX"></div>
     </div>
     <div class="mfield"><label>הערות / תוכנית עבודה</label><textarea id="chip-notes" placeholder="הנחיות, גישה, תוכנית..."></textarea></div>
-    <div class="mfield"><label>קובץ תוכנית</label>
-      <div class="file-upload" id="chip-file-area">
-        <input type="file" id="chip-file-input" accept=".pdf,.dwg,.jpg,.png,.docx">
-        <p>&#128196; לחץ להעלאת קובץ</p>
-      </div>
-      <div class="file-preview" id="chip-file-preview" style="display:none;">
-        <span id="chip-file-name"></span>
-        <button id="chip-file-clear">&#215;</button>
-      </div>
-    </div>
     <div class="modal-actions">
       <button class="mbtn can" id="chip-cancel">ביטול</button>
       <button class="mbtn pri" id="chip-save">&#128190; שמור</button>
@@ -326,15 +316,8 @@ td.td-day.off-day{background:repeating-linear-gradient(45deg,#f8fafc,#f8fafc 5px
       <input type="text" id="dr-proj" placeholder="הקלד שם פרויקט..." list="proj-datalist">
       <datalist id="proj-datalist"></datalist>
     </div>
-    <div class="mrow">
-      <div class="mfield"><label>סוג פעולה</label><select id="dr-type"></select></div>
-      <div class="mfield"><label>כמות מתקינים</label><input type="number" id="dr-qty" min="1" max="20" value="1"></div>
-    </div>
-    <div class="mfield"><label>מתקין מועדף (מרשימה)</label>
-      <select id="dr-preferred-inst">
-        <option value="">-- ללא העדפה --</option>
-      </select>
-    </div>
+    <div class="mfield"><label>סוג פעולה</label><select id="dr-type"></select></div>
+    <div class="mfield"><label>מתקינים מועדפים</label><div class="inst-picker" id="dr-inst-picker"></div></div>
     <div class="mrow">
       <div class="mfield"><label>תאריך מבוקש</label><input type="date" id="dr-date"></div>
       <div class="mfield"><label>ימי עבודה</label><input type="number" id="dr-days" min="1" max="60" value="1"></div>
@@ -345,16 +328,6 @@ td.td-day.off-day{background:repeating-linear-gradient(45deg,#f8fafc,#f8fafc 5px
       <div class="mfield"><label>טלפון</label><input type="text" id="dr-cphone" placeholder="מספר"></div>
     </div>
     <div class="mfield"><label>הערות</label><textarea id="dr-notes" placeholder="פרטים, גישה, הנחיות..."></textarea></div>
-    <div class="mfield"><label>קובץ תוכנית</label>
-      <div class="file-upload" id="dr-file-area">
-        <input type="file" id="dr-file-input" accept=".pdf,.dwg,.jpg,.png,.docx">
-        <p>&#128196; לחץ להעלאת קובץ</p>
-      </div>
-      <div class="file-preview" id="dr-file-preview" style="display:none;">
-        <span id="dr-file-name"></span>
-        <button id="dr-file-clear">&#215;</button>
-      </div>
-    </div>
     <div class="modal-actions">
       <button class="mbtn can" id="dreshot-cancel">ביטול</button>
       <button class="mbtn pri" id="dreshot-save">שמור</button>
@@ -485,18 +458,12 @@ var DAYS = ["ראשון","שני","שלישי","רביעי","חמישי","שיש
 var PMS = ["גלעד","עמית","עידן","ניקי","שי","חן שאמלי","אסף כרמונה","וובה","ספיר בר","אסף טישלר","ניר"];
 
 var INSTALLERS = [
-  {id:"ki", name:"קיריל", city:"ראשון לציון", phone:"0539525183", skill:"מחיצות"},
-  {id:"ge", name:"גיאורגי", city:"נתניה", phone:"0549557243", skill:"זיגוג"},
-  {id:"di", name:"דימה", city:"ראשון לציון", phone:"0544952656", skill:"פרופילציה"},
-  {id:"gr", name:"גרישה", city:"ראשון לציון", phone:"0526276303", skill:"מחיצות"},
-  {id:"ul", name:"עלא", city:"באקה אל-גרבייה", phone:"0509191100", skill:"מחיצות"},
-  {id:"ko", name:"קוסטה", city:"חיפה", phone:"0525113669", skill:"זיגוג"},
-  {id:"al", name:"אלון", city:"הוד השרון", phone:"0584307560", skill:"דלתות"},
-  {id:"am", name:"אמיר", city:"ירושלים", phone:"0527446514", skill:"כללי"},
-  {id:"ah", name:"אחמד", city:"ירושלים", phone:"0545437909", skill:"כללי"},
-  {id:"dv", name:"דוד", city:"נתניה", phone:"0528720181", skill:"מחיצות"},
-  {id:"yg", name:"יגור", city:"חולון", phone:"0533242950", skill:"פרופילציה"},
-  {id:"av", name:"אבי", city:"יבנה", phone:"0522424406", skill:"זיגוג"}
+  {id:"m1", name:"רונית מלכה",   phone:"0533333333", city:"", skill:"צוות מנהלים"},
+  {id:"m2", name:"אבי שלום",     phone:"0509876543", city:"", skill:"צוות ג'"},
+  {id:"m3", name:"דני לוי",      phone:"0547654321", city:"", skill:"צוות ב'"},
+  {id:"m4", name:"אילנה בן דוד", phone:"0522222222", city:"", skill:"צוות ב'"},
+  {id:"m5", name:"יוסי כהן",     phone:"0521234567", city:"", skill:"צוות א'"},
+  {id:"m6", name:"שלומי אוחנה",  phone:"0588888888", city:"", skill:"צוות א'"}
 ];
 
 // ==================== STATE ====================
@@ -512,6 +479,7 @@ var nextId = 1;
 var dragSrc = null;
 var modalCtx = {};
 var selectedInsts = [];
+var selectedDrInsts = [];
 var fileStore = {};
 var chipEditKey = null;
 var chipEditIdx = null;
@@ -856,6 +824,26 @@ function fillChipSelects() {
   });
 }
 
+function renderDrPicker() {
+  var p = document.getElementById("dr-inst-picker");
+  if (!p) return;
+  p.innerHTML = INSTALLERS.map(function(i) {
+    var s = selectedDrInsts.indexOf(i.name) >= 0;
+    var bg = s ? "#2563eb" : "#fff";
+    var col = s ? "#fff" : "#475569";
+    var bord = s ? "#2563eb" : "#cbd5e1";
+    return '<span data-name="'+i.name+'" style="cursor:pointer;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1.5px solid '+bord+';background:'+bg+';color:'+col+';display:inline-block;margin:2px;">'+i.name+'</span>';
+  }).join("");
+  p.querySelectorAll("span").forEach(function(tag) {
+    tag.addEventListener("click", function() {
+      var n = tag.dataset.name;
+      var idx = selectedDrInsts.indexOf(n);
+      if (idx>=0) selectedDrInsts.splice(idx,1); else selectedDrInsts.push(n);
+      renderDrPicker();
+    });
+  });
+}
+
 function openChipNew(key, instName) {
   chipEditKey = key; chipEditIdx = null;
   selectedInsts = [instName];
@@ -980,7 +968,8 @@ document.getElementById("dreshot-save").addEventListener("click", function() {
     cphone: document.getElementById("dr-cphone").value,
     notes: document.getElementById("dr-notes").value,
     pm: currentUser,
-    preferredInst: document.getElementById('dr-preferred-inst').value,
+    insts: selectedDrInsts.slice(),
+    preferredInst: selectedDrInsts[0]||'',
     status: "פתוח",
     fileId: fid
   };
@@ -1057,8 +1046,8 @@ function setupFile(inputId, previewId, nameId, clearId, areaId) {
     document.getElementById(previewId).style.display = "none";
   });
 }
-setupFile("chip-file-input","chip-file-preview","chip-file-name","chip-file-clear","chip-file-area");
-setupFile("dr-file-input","dr-file-preview","dr-file-name","dr-file-clear","dr-file-area");
+
+
 
 // ==================== SEND ====================
 document.getElementById("btn-send-all").addEventListener("click", function(){ openSend(false); });
