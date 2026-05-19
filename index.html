@@ -296,7 +296,7 @@ td.dcell.off-day{background:repeating-linear-gradient(45deg,#f8fafc,#f8fafc 4px,
     <div class="lcard">
       <h2>כניסה למערכת</h2><p>בחר שם והזן סיסמה</p>
       <div class="lf"><label>משתמש</label>
-        <select id="lu">
+        <select id="lu" onchange="const u=this.value;const isAdm=u==='ניר';document.getElementById('pw-field').style.display=isAdm?'block':'none';">
           <option value="">-- בחר שם --</option>
           <optgroup label="אדמין"><option value="ניר">ניר</option></optgroup>
           <optgroup label="מנהלי פרויקטים">
@@ -308,8 +308,11 @@ td.dcell.off-day{background:repeating-linear-gradient(45deg,#f8fafc,#f8fafc 4px,
           </optgroup>
         </select>
       </div>
-      <div class="lf"><label>סיסמה</label>
-        <input type="password" id="lpw" placeholder="הזן סיסמה" onkeydown="if(event.key==='Enter')doLogin()">
+      <div class="lf" id="pw-field" style="display:none;"><label>סיסמה</label>
+        <div style="position:relative;">
+        <input type="password" id="lpw" placeholder="הזן סיסמה" onkeydown="if(event.key==='Enter')doLogin()" style="padding-left:40px;">
+        <button type="button" onclick="const i=document.getElementById('lpw');i.type=i.type==='password'?'text':'password';" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;color:var(--tx3);font-size:14px;">👁</button>
+      </div>
         <div class="lerr" id="lerr">סיסמה שגויה</div>
       </div>
       <button class="lbtn" onclick="doLogin()">כניסה</button>
@@ -508,7 +511,7 @@ td.dcell.off-day{background:repeating-linear-gradient(45deg,#f8fafc,#f8fafc 4px,
 
 <script>
 // ═══ PASSWORDS ═══════════════════════════════════════════════
-const PW={"ניר":"admin123","גלעד":"galad1","עמית":"amit1","עידן":"idan1","ניקי":"niki1","שי":"shai1","חן שאמלי":"chen1","אסף כרמונה":"asaf1","וובה":"vova1","ספיר בר":"sapir1","אסף טישלר":"asaft1"};
+const PW={"ניר":"1234"};  // רק אדמין צריך סיסמה
 const ADMINS=["ניר"];
 
 // ═══ STATIC DATA ═══════════════════════════════════════════════
@@ -638,11 +641,17 @@ function openFile(fid){
 
 // ═══ AUTH ════════════════════════════════════════════════════
 function doLogin(){
-  const u=document.getElementById('lu').value;
-  const p=document.getElementById('lpw').value;
+  const u=document.getElementById('lu').value.trim();
+  const p=document.getElementById('lpw').value.trim();
   const err=document.getElementById('lerr');
   if(!u){err.textContent='בחר משתמש';err.style.display='block';return;}
-  if(PW[u]!==p){err.textContent='סיסמה שגויה';err.style.display='block';document.getElementById('lpw').value='';return;}
+  // אדמין צריך סיסמה, מנהלי פרויקטים נכנסים ללא סיסמה
+  if(PW[u] !== undefined){
+    if(p !== PW[u]){
+      err.textContent='סיסמה שגויה';err.style.display='block';
+      document.getElementById('lpw').value='';return;
+    }
+  }
   err.style.display='none';
   CU=u;isA=ADMINS.includes(u);
   document.getElementById('ls').style.display='none';
