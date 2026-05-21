@@ -104,6 +104,10 @@ td.td-day.off-day{background:repeating-linear-gradient(45deg,#f8fafc,#f8fafc 5px
 .chip-btn{background:rgba(0,0,0,.06);border:none;border-radius:3px;padding:2px 5px;font-size:9px;cursor:pointer;font-family:'Heebo',Arial,sans-serif;font-weight:600;}
 .add-cell-btn{border:1.5px dashed #cbd5e1;background:transparent;border-radius:5px;padding:3px;width:100%;cursor:pointer;color:#94a3b8;font-size:12px;text-align:center;font-family:'Heebo',Arial,sans-serif;margin-top:1px;}
 .add-cell-btn:hover{border-color:#2563eb;color:#2563eb;background:#eff6ff;}
+.add-cell-btn-new{border:1.5px dashed #cbd5e1;background:transparent;border-radius:6px;padding:3px;width:100%;cursor:pointer;color:#94a3b8;font-size:12px;text-align:center;font-family:'Heebo',Arial,sans-serif;margin-top:1px;}
+.add-cell-btn-new:hover{border-color:#2563eb;color:#2563eb;background:#eff6ff;}
+.add-cell-btn-dr{border:1.5px dashed #16a34a;background:transparent;border-radius:6px;padding:3px;width:100%;cursor:pointer;color:#16a34a;font-size:12px;text-align:center;font-family:'Heebo',Arial,sans-serif;margin-top:1px;}
+.add-cell-btn-dr:hover{background:#dcfce7;}
 .add-cell-btn.dreshot{border-color:#16a34a;color:#16a34a;}
 .add-cell-btn.dreshot:hover{background:#dcfce7;}
 .off-btn{border:1px solid #fca5a5;background:#fff0f0;border-radius:5px;padding:2px;width:100%;cursor:pointer;color:#dc2626;font-size:10px;text-align:center;font-family:'Heebo',Arial,sans-serif;margin-top:1px;}
@@ -745,11 +749,11 @@ function renderSchedule() {
           '</div>';
       }).join("");
       return '<td class="td-day'+(isToday(date)?' today-cell':'')+(off?' off-day':'')+'" data-key="'+key+'" ondragover="handleDragOver(event,\''+key+'\')" ondrop="handleDrop(event,\''+key+'\')">' +
+        (isAdmin ? '<button class="cell-edit-btn" data-inst="'+inst.name+'" data-date="'+isoDate(date)+'" data-datefmt="'+fmtDate(date)+'">✎</button>' : '') +
         '<div class="cell-inner">' + chipsHTML +
-        (isAdmin ? '<button class="add-cell-btn" onclick="openChipNew(\''+key+'\',\''+inst.name+'\')">+ שבץ</button>' +
-          '<button class="off-btn" onclick="openOffModal(\''+inst.name+'\',\''+fmtDate(date)+'\',\''+isoDate(date)+'\')">🔴 חופש</button>' :
-          '<button class="add-cell-btn dreshot" onclick="openDreshotModal(null)">+ דרשיה</button>') +
+        (isAdmin ? '<button class="add-cell-btn-new" data-key="'+key+'" data-inst="'+inst.name+'">+ שבץ</button>' : '<button class="add-cell-btn-dr">+ דרישה</button>') +
         '</div></td>';
+
     }).join("");
     return '<tr>' +
       '<td class="td-inst"><div class="inst-row">' +
