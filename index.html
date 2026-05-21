@@ -1268,10 +1268,10 @@ function renderAbsence() {
           '<div style="display:flex;flex-direction:column;align-items:center;gap:2px;">' +
           '<span style="font-size:16px;">'+oi+'</span>' +
           '<span style="font-size:10px;font-weight:700;color:'+oc+';">'+reason+'</span>' +
-          '<button onclick="removeOff(''+inst.name+'',''+isoDate(date)+'')" style="font-size:9px;border:1px solid '+oc+'40;background:#fff;border-radius:4px;padding:1px 6px;cursor:pointer;color:'+oc+';margin-top:2px;">הסר</button>' +
+          '<button class="abs-remove-btn" data-inst="'+inst.name+'" data-date="'+isoDate(date)+'" style="font-size:9px;border:1px solid '+oc+'40;background:#fff;border-radius:4px;padding:1px 6px;cursor:pointer;color:'+oc+';margin-top:2px;">הסר</button>' +
           '</div></td>';
       } else {
-        html += '<td style="border:1px solid #e2e8f0;padding:4px;text-align:center;background:'+(tod?'#f0f7ff':'#fff')+(hasChips?';outline:2px solid #2563eb30;outline-offset:-2px':'')+';cursor:pointer;" onclick="quickAddOff(''+inst.name+'',''+fmtDate(date)+'',''+isoDate(date)+'')" title="לחץ להוספת היעדרות">' +
+        html += '<td style="border:1px solid #e2e8f0;padding:4px;text-align:center;background:'+(tod?'#f0f7ff':'#fff')+(hasChips?';outline:2px solid #2563eb30;outline-offset:-2px':'')+';cursor:pointer;" class="abs-add-cell" data-inst="'+inst.name+'" data-datefmt="'+fmtDate(date)+'" data-date="'+isoDate(date)+'" title="לחץ להוספת היעדרות">' +
           (hasChips ? '<span style="font-size:9px;font-weight:700;color:#2563eb;display:block;margin-bottom:2px;">משובץ</span>' : '') +
           '<span style="font-size:18px;color:#e2e8f0;display:block;">+</span>' +
           '</td>';
@@ -1297,7 +1297,7 @@ function renderAbsence() {
         '<span style="font-size:11px;font-weight:700;color:'+oc+';">'+instName+'</span>' +
         '<span style="font-size:10px;color:#94a3b8;">'+isoD+'</span>' +
         '<span style="font-size:10px;font-weight:600;color:'+oc+';">'+reason+'</span>' +
-        '<button onclick="removeOff(''+instName+'',''+isoD+'')" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:12px;padding:0 0 0 4px;">✕</button>' +
+        '<button class="abs-remove-btn" data-inst="'+instName+'" data-date="'+isoD+'" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:12px;padding:0 0 0 4px;">✕</button>' +
         '</div>';
     });
     html += '</div></div>';
